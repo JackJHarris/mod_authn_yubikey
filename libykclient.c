@@ -213,7 +213,7 @@ yubikey_client_request (yubikey_client_t client,
 {
   struct MemoryStruct chunk = { NULL, 0 };
   yubiauth_dir_cfg *cfg = ap_get_module_config(r->per_dir_config, &authn_yubikey_module);
-  const char *url_template = "%s://%s/wsapi/verify?id=%d&otp=%s";
+  const char *url_template = "%s://%s/wsapi/2.0/verify?id=%d&otp=%s&nonce=%s%s%s%s";
   char *url;
   char *user_agent = NULL;
   char *status;
@@ -222,8 +222,16 @@ yubikey_client_request (yubikey_client_t client,
   //int proxyPort = 8080;
   //char *proxy = "proxy.example.com";
   //char *proxyPwd = "username:password";
-  
-  asprintf (&url, url_template, cfg->validationProtocol, cfg->validationHost, client->client_id, yubikey);
+  srand(time(NULL));
+  char nonce1 [4];
+  char nonce2 [4];
+  char nonce3 [4];
+  char nonce4 [4];
+  sprintf(nonce1, "%04d", rand()%10000);
+  sprintf(nonce2, "%04d", rand()%10000);
+  sprintf(nonce3, "%04d", rand()%10000);
+  sprintf(nonce4, "%04d", rand()%10000);
+  asprintf (&url, url_template, cfg->validationProtocol, cfg->validationHost, client->client_id, yubikey, nonce1, nonce2, nonce3, nonce4);
 
   /* ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,
                               "DebugLogging: %s %d %s %s",
